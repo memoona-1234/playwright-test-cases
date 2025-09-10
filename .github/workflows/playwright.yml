@@ -1,9 +1,11 @@
 name: Playwright Tests
+
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
 jobs:
   test:
     timeout-minutes: 60
@@ -18,13 +20,17 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-    env:
+      # 'run' and 'env' are properties of the 'Run Playwright tests' step,
+      # so they must be indented underneath it.
+      run: npx playwright test
+      env:
         STAGING_URL: ${{ secrets.STAGING_URL }}
         STAGING_USERNAME: ${{ secrets.STAGING_USERNAME }}
         STAGING_PASSWORD: ${{ secrets.STAGING_PASSWORD }}
-      run: npx playwright test
     - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
+      # Note: 'always()' is a simpler condition than '!cancelled()' and is more common.
+      # It ensures the report is uploaded even if tests fail.
+      if: always()
       with:
         name: playwright-report
         path: playwright-report/
